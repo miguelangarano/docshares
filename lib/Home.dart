@@ -9,29 +9,39 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String _nombre;
   String _materia;
-  bool _whereiam = true;
+  int _whereiam = 0;
   bool loggedin=false;
-
-
-  void Docs() {
-    print('docs');
-    setState(() {
-      _whereiam = false;
-    });
-  }
-
-  void Subir() {
-    print('subir');
-    setState(() {
-      _whereiam = true;
-    });
-  }
 
   void goToLogin(){
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => new Login()),
     );
+  }
+
+  void home(){
+    print('home');
+    setState(() {
+      _whereiam=0;
+    });
+  }
+
+  void documentos(){
+    print('documentos');
+    setState(() {
+      _whereiam=1;
+    });
+  }
+
+  void biblioteca(){
+    print('biblioteca');
+    setState(() {
+      _whereiam=2;
+    });
+  }
+
+  void logOut(){
+    print('Log Out');
   }
 
   @override
@@ -42,32 +52,56 @@ class _HomeState extends State<Home> {
         home: new Scaffold(
             backgroundColor: Colors.indigo[50],
             appBar: new AppBar(
-                backgroundColor: Colors.indigo[50],
+                backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
                 elevation: 0,
-                title: new Row(
-                  children: <Widget>[
-                    new Image.asset('assets/logo.png', fit: BoxFit.cover),
-                    new Center(
-                      child: new Text(
-                        'Documentos Compartidos',
-                        style: TextStyle(
-                            fontSize: 18, color: Colors.blueGrey[300]),
+                title: new Center(
+                  child: new Text('Documentos Compartidos', style: TextStyle(fontSize: 18, color: Colors.white)),
+                )
+            ),
+            drawer: new Drawer(
+              child: ListView(
+                children: <Widget>[
+                  new UserAccountsDrawerHeader(
+                      decoration: new BoxDecoration(
+                        image: new DecorationImage(image: AssetImage('assets/logo.png'))
                       ),
-                    )
-                  ],
-                )),
+                  ),
+                  new ListTile(
+                    title: new Text('Página Principal'),
+                    trailing: new Icon(Icons.home),
+                    onTap: home,
+                  ),
+                  new ListTile(
+                    title: new Text('Mis Documentos'),
+                    trailing: new Icon(Icons.description),
+                    onTap: documentos,
+                  ),
+                  new ListTile(
+                    title: new Text('Biblioteca General'),
+                    trailing: new Icon(Icons.import_contacts),
+                    onTap: biblioteca,
+                  ),
+                  new Divider(),
+                  new ListTile(
+                    title: new Text('Cerrar Sesión'),
+                    trailing: new Icon(Icons.power_settings_new),
+                    onTap: logOut,
+                  )
+                ],
+              ),
+            ),
             body: new SingleChildScrollView(
               child: new Container(
                   margin: new EdgeInsets.symmetric(horizontal: 3, vertical: 10),
                   color: Colors.indigo[50],
                   child: new Column(children: <Widget>[
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: MenuButtons(),
-                    ),
                     MainPanel()
-                  ])),
-            )));
+                  ]
+                  )
+              ),
+            )
+        )
+    );
   }
 
   Widget MainPanel() {
@@ -102,58 +136,6 @@ class _HomeState extends State<Home> {
         color: Colors.blue,
         child: ListBuilder(),
       );
-    }
-  }
-
-  List<Widget> MenuButtons() {
-    if (_whereiam == true) {
-      return [
-        new RaisedButton(
-          onPressed: () => Subir(),
-          color: new Color.fromRGBO(222, 39, 39, 30.0),
-          shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(10.0)),
-          child: const Text(
-            'Sube un documento',
-            style: TextStyle(color: Colors.white),
-          ),
-          elevation: 20,
-        ),
-        new RaisedButton(
-            onPressed: () => Docs(),
-            color: new Color.fromRGBO(143, 2, 2, 30.0),
-            shape: new RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10.0)),
-            child: const Text(
-              ' Tus documentos ',
-              style: TextStyle(color: Colors.white),
-            ),
-            elevation: 20)
-      ];
-    } else {
-      return [
-        new RaisedButton(
-          onPressed: () => Subir(),
-          color: new Color.fromRGBO(143, 2, 2, 30.0),
-          shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(10.0)),
-          child: const Text(
-            'Sube un documento',
-            style: TextStyle(color: Colors.white),
-          ),
-          elevation: 20,
-        ),
-        new RaisedButton(
-            onPressed: () => Docs(),
-            color: new Color.fromRGBO(222, 39, 39, 30.0),
-            shape: new RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10.0)),
-            child: const Text(
-              ' Tus documentos ',
-              style: TextStyle(color: Colors.white),
-            ),
-            elevation: 20)
-      ];
     }
   }
 
