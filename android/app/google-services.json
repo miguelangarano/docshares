@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "310151989993",
+    "firebase_url": "https://docshares-32058.firebaseio.com",
+    "project_id": "docshares-32058",
+    "storage_bucket": "docshares-32058.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:310151989993:android:484a7f231216c99f",
+        "android_client_info": {
+          "package_name": "com.dochshares.docshares"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "310151989993-cfc8fc4kqbnqg6mqi96ga6ccn1rhmg49.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbjv5ZJ55j8JFVbKagySlo0yfzqy6pJeY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

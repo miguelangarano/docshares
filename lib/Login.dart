@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:firebase_auth/firebase_auth.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -6,6 +7,11 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  final loginKey = new GlobalKey<FormState>();
+  final registerKey = new GlobalKey<FormState>();
+
+
   String _email;
   String _password;
   String _confirmpassword;
@@ -27,9 +33,20 @@ class _LoginState extends State<Login> {
     print('registrar');
   }
 
-  void login() {
+  void login() async {
     print('login');
-    returnToHome();
+    //returnToHome();
+    final loginForm = loginKey.currentState;
+    if(loginForm.validate()){
+      /*try{
+        FirebaseUser user=await FirebaseAuth.instance.signInWithEmailAndPassword(email: _email, password: _password);
+        print('Signed In UID: ${user.uid}');
+      }catch(error){
+        print('Error: $error');
+      }*/
+    }else{
+      print('invalid');
+    }
   }
 
   void showLogin() {
@@ -49,46 +66,61 @@ class _LoginState extends State<Login> {
       return [
         new Container(
             padding: new EdgeInsets.symmetric(vertical: 20),
-            child: new TextFormField(
-              decoration: new InputDecoration(
-                  focusedBorder: new OutlineInputBorder(
-                      borderSide: new BorderSide(
-                          color: new Color.fromRGBO(255, 255, 255, 1.0))),
-                  hintText: 'Correo',
-                  hintStyle: new TextStyle(color: Colors.grey),
-                  contentPadding: new EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10.0),
-                  fillColor: new Color.fromRGBO(255, 255, 255, 1),
-                  filled: true,
-                  border: new OutlineInputBorder(
-                      borderRadius: new BorderRadius.circular(50),
-                      borderSide:
-                          new BorderSide(width: 0, color: Colors.black))),
-              validator: (value) =>
-                  value.isEmpty ? 'Correo no puede estar vacio' : null,
-              onSaved: (value) => _email = value,
-              style: new TextStyle(color: Colors.grey),
-            )),
-        new Container(
-          child: new TextFormField(
-            decoration: new InputDecoration(
-                focusedBorder: new OutlineInputBorder(
-                    borderSide: new BorderSide(
-                        color: new Color.fromRGBO(255, 255, 255, 1.0))),
-                hintText: 'Contraseña',
-                hintStyle: new TextStyle(color: Colors.grey),
-                contentPadding:
-                    new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                fillColor: new Color.fromRGBO(255, 255, 255, 1),
-                filled: true,
-                border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(50),
-                    borderSide: new BorderSide(width: 0, color: Colors.black))),
-            validator: (value) =>
-                value.isEmpty ? 'Contraseña no puede estar vacio' : null,
-            onSaved: (value) => _password = value,
-            style: new TextStyle(color: Colors.grey),
-          ),
+            child: new Form(
+              key: loginKey,
+              child: new Column(
+                children: <Widget>[
+                  new TextFormField(
+                    decoration: new InputDecoration(
+                        focusedBorder: new OutlineInputBorder(
+                            borderSide: new BorderSide(
+                                color: new Color.fromRGBO(255, 255, 255, 1.0))),
+                        hintText: 'Correo',
+                        hintStyle: new TextStyle(color: Colors.grey),
+                        contentPadding: new EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 10.0),
+                        fillColor: new Color.fromRGBO(255, 255, 255, 1),
+                        filled: true,
+                        border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(50),
+                            borderSide:
+                            new BorderSide(width: 0, color: Colors.black))),
+                    validator: (value) =>
+                    value.isEmpty ? 'Correo no puede estar vacio' : null,
+                    //onSaved: (value) => _email = value,
+                    onFieldSubmitted: (value) => _email = value,
+                    style: new TextStyle(color: Colors.grey),
+                  ),
+
+                  new Padding(padding: new EdgeInsets.all(12.5),),
+
+                  new TextFormField(
+                    decoration: new InputDecoration(
+                        focusedBorder: new OutlineInputBorder(
+                            borderSide: new BorderSide(
+                                color: new Color.fromRGBO(255, 255, 255, 1.0)
+                            )
+                        ),
+                        hintText: 'Contraseña',
+                        hintStyle: new TextStyle(color: Colors.grey),
+                        contentPadding:
+                        new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                        fillColor: new Color.fromRGBO(255, 255, 255, 1),
+                        filled: true,
+                        border: new OutlineInputBorder(
+                            borderRadius: new BorderRadius.circular(50),
+                            borderSide: new BorderSide(width: 0, color: Colors.black)
+                        )
+                    ),
+                    validator: (value) =>
+                    value.isEmpty ? 'Contraseña no puede estar vacio' : null,
+                    onFieldSubmitted: (value) => _password = value,
+                    style: new TextStyle(color: Colors.grey),
+                    obscureText: true,
+                  ),
+                ],
+              ),
+            )
         ),
         new Container(
           margin: new EdgeInsets.symmetric(vertical: 30),
@@ -266,19 +298,19 @@ class _LoginState extends State<Login> {
 
   Widget loginPart() {
     if (_whereiam) {
-      return new Container(
-        child: new Column(
-          children: <Widget>[
-            new Container(
-              margin: new EdgeInsets.symmetric(vertical: 30),
-              child: new Image.asset(
-                'assets/logo.png',
-                fit: BoxFit.cover,
-                width: 180,
+      return new SingleChildScrollView(
+        child: new Container(
+          child: new Column(
+            children: <Widget>[
+              new Container(
+                margin: new EdgeInsets.symmetric(vertical: 30),
+                child: new Image.asset(
+                  'assets/logo.png',
+                  fit: BoxFit.cover,
+                  width: 180,
+                ),
               ),
-            ),
-            new SingleChildScrollView(
-              child: new Container(
+              new Container(
                 padding: new EdgeInsets.symmetric(vertical: 40, horizontal: 30),
                 decoration: new BoxDecoration(
                   color: new Color.fromRGBO(222, 39, 39, 1.0),
@@ -286,9 +318,9 @@ class _LoginState extends State<Login> {
                 child: new Column(
                   children: buildInputs(),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       );
     } else {

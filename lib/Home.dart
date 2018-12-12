@@ -12,13 +12,6 @@ class _HomeState extends State<Home> {
   int _whereiam = 0;
   bool loggedin=false;
 
-  void goToLogin(){
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => new Login()),
-    );
-  }
-
   void home(){
     print('home');
     setState(() {
@@ -42,6 +35,14 @@ class _HomeState extends State<Home> {
 
   void logOut(){
     print('Log Out');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => new Login()),
+    );
+  }
+
+  void selectFile(){
+    print('select file');
   }
 
   @override
@@ -58,88 +59,107 @@ class _HomeState extends State<Home> {
                   child: new Text('Documentos Compartidos', style: TextStyle(fontSize: 18, color: Colors.white)),
                 )
             ),
-            drawer: new Drawer(
-              child: ListView(
-                children: <Widget>[
-                  new UserAccountsDrawerHeader(
-                      decoration: new BoxDecoration(
-                        image: new DecorationImage(image: AssetImage('assets/logo.png'))
-                      ),
-                  ),
-                  new ListTile(
-                    title: new Text('Página Principal'),
-                    trailing: new Icon(Icons.home),
-                    onTap: home,
-                  ),
-                  new ListTile(
-                    title: new Text('Mis Documentos'),
-                    trailing: new Icon(Icons.description),
-                    onTap: documentos,
-                  ),
-                  new ListTile(
-                    title: new Text('Biblioteca General'),
-                    trailing: new Icon(Icons.import_contacts),
-                    onTap: biblioteca,
-                  ),
-                  new Divider(),
-                  new ListTile(
-                    title: new Text('Cerrar Sesión'),
-                    trailing: new Icon(Icons.power_settings_new),
-                    onTap: logOut,
-                  )
-                ],
-              ),
-            ),
-            body: new SingleChildScrollView(
-              child: new Container(
-                  margin: new EdgeInsets.symmetric(horizontal: 3, vertical: 10),
-                  color: Colors.indigo[50],
-                  child: new Column(children: <Widget>[
-                    MainPanel()
-                  ]
-                  )
-              ),
-            )
+            drawer: NavigationDrawer(),
+            body: MainPanel()
         )
     );
   }
 
+  Widget NavigationDrawer(){
+    return new Drawer(
+      child: ListView(
+        children: <Widget>[
+          new UserAccountsDrawerHeader(
+            decoration: new BoxDecoration(
+                image: new DecorationImage(image: AssetImage('assets/logo.png'))
+            ),
+          ),
+          new ListTile(
+            title: new Text('Página Principal'),
+            trailing: new Icon(Icons.home),
+            onTap: home,
+          ),
+          new ListTile(
+            title: new Text('Mis Documentos'),
+            trailing: new Icon(Icons.description),
+            onTap: documentos,
+          ),
+          new ListTile(
+            title: new Text('Biblioteca General'),
+            trailing: new Icon(Icons.import_contacts),
+            onTap: biblioteca,
+          ),
+          new Divider(),
+          new ListTile(
+            title: new Text('Cerrar Sesión'),
+            trailing: new Icon(Icons.power_settings_new),
+            onTap: logOut,
+          )
+        ],
+      ),
+    );
+  }
+
   Widget MainPanel() {
-    if (_whereiam == true) {
-      return new Container(
+    if (_whereiam == 0) {
+      return Principal();
+    } else if(_whereiam == 1) {
+      return Documentos();
+    }else if (_whereiam == 2){
+      return Biblioteca();
+    }
+  }
+
+  Widget Principal(){
+    return new SingleChildScrollView(
+      child: new Container(
           margin: new EdgeInsets.symmetric(horizontal: 40, vertical: 60),
           child: new Form(
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 new Container(
-                  child: new Column(
-                    children: SubirButton(),
-                  ),
+                  child: Principal_SubirButton(),
                 ),
                 new Container(
                   margin: new EdgeInsets.symmetric(vertical: 20),
                   child: new Column(
-                    children: buildInputs(),
+                    children: Principal_Inputs(),
                   ),
                 ),
                 new Container(
                   margin: new EdgeInsets.symmetric(vertical: 10),
-                  child: ListoButton(),
+                  child: Principal_ListoButton(),
                 )
               ],
             ),
-          ));
-    } else {
-      return new Container(
-        margin: new EdgeInsets.symmetric(horizontal: 5, vertical: 30),
-        color: Colors.blue,
-        child: ListBuilder(),
-      );
-    }
+          )
+      ),
+    );
   }
 
-  List<Widget> buildInputs() {
+  Widget Documentos(){
+    return new Container(
+      //margin: new EdgeInsets.symmetric(horizontal: 5, vertical: 30),
+      //width: 100,
+      child: Documentos_ListBuilder(),
+    );
+  }
+
+  Widget Biblioteca(){
+    return new Container(
+      margin: new EdgeInsets.only(left: 20, top: 60, right: 10, bottom: 0),
+      child: new GridView.builder(
+          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          itemCount: 3,
+          itemBuilder: (BuildContext context, int index){
+            return Biblioteca_Card(index);
+          }
+      ),
+    );
+  }
+
+  List<Widget> Principal_Inputs() {
     return [
       new Container(
           margin: new EdgeInsets.symmetric(vertical: 20),
@@ -189,10 +209,9 @@ class _HomeState extends State<Home> {
     ];
   }
 
-  List<Widget> SubirButton() {
-    return [
-      new RaisedButton(
-        onPressed: goToLogin,
+  Widget Principal_SubirButton() {
+    return new RaisedButton(
+        onPressed: selectFile,
         color: new Color.fromRGBO(143, 2, 2, 30.0),
         shape: new RoundedRectangleBorder(
             borderRadius: new BorderRadius.circular(10.0)),
@@ -201,11 +220,10 @@ class _HomeState extends State<Home> {
           style: TextStyle(color: Colors.white),
         ),
         elevation: 20,
-      )
-    ];
+      );
   }
 
-  Widget ListoButton() {
+  Widget Principal_ListoButton() {
     return new RaisedButton(
       onPressed: () => print('Hola listo'),
       color: new Color.fromRGBO(143, 2, 2, 30.0),
@@ -219,32 +237,29 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget ListBuilder() {
-    return new SingleChildScrollView(
-      child: new Column(
-        children: <Widget>[
-          ListItemRed(),
-          ListItemRedAccent(),
-          ListItemRed(),
-          ListItemRedAccent(),
-          ListItemRed(),
-          ListItemRedAccent(),
-          ListItemRed(),
-          ListItemRedAccent(),
-          ListItemRed(),
-          ListItemRedAccent(),
-        ],
-      ),
+  Widget Documentos_ListBuilder() {
+    return new ListView.builder(
+      padding: EdgeInsets.all(8.0),
+      itemCount: 3,
+      itemBuilder: (BuildContext context, int index) {
+        if(index%2==0){
+          return Documentos_ListItemRedAccent();
+        }else{
+          return Documentos_ListItemRed();
+        }
+      },
     );
   }
 
-  Widget ListItemRed() {
+  Widget Documentos_ListItemRed() {
     return new Container(
       child: new Row(
+        //crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           new Container(
-              width: 200,
-              height: 60,
+              padding: new EdgeInsets.symmetric(vertical: 10),
+              width: 235,
+              height: 70,
               color: new Color.fromRGBO(222, 39, 39, 30.0),
               child: new Column(
                 children: <Widget>[
@@ -255,7 +270,7 @@ class _HomeState extends State<Home> {
               )),
           new Container(
             width: 104,
-            height: 60,
+            height: 70,
             color: new Color.fromRGBO(222, 39, 39, 30.0),
             child: new Center(
               child: new Image.asset('assets/doc.png', fit: BoxFit.cover),
@@ -266,13 +281,14 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget ListItemRedAccent() {
+  Widget Documentos_ListItemRedAccent() {
     return new Container(
       child: new Row(
         children: <Widget>[
           new Container(
-              width: 200,
-              height: 60,
+              padding: new EdgeInsets.symmetric(vertical: 10),
+              width: 235,
+              height: 70,
               color: new Color.fromRGBO(143, 2, 2, 30.0),
               child: new Column(
                 children: <Widget>[
@@ -283,13 +299,49 @@ class _HomeState extends State<Home> {
               )),
           new Container(
             width: 104,
-            height: 60,
+            height: 70,
             color: new Color.fromRGBO(143, 2, 2, 30.0),
             child: new Center(
               child: new Image.asset('assets/doc.png', fit: BoxFit.cover),
             ),
           )
         ],
+      ),
+    );
+  }
+  
+  Widget Biblioteca_Card(int ind){
+    return new Container(
+      child: new Card(
+        elevation: 20,
+        color: new Color.fromRGBO(222, 39, 39, 1.0),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new GestureDetector(
+              onTap: (){
+                print('tapped $ind');
+              },
+              child: new Icon(Icons.share, size: 50),
+            ),
+            new Container(
+              margin: new EdgeInsets.only(left: 0, top: 10, right: 0, bottom: 0),
+              child: new Card(
+                color: new Color.fromRGBO(225, 215, 215, 1),
+                elevation: 20,
+                child: new Container(
+                  padding: new EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                  child: new Column(
+                    children: <Widget>[
+                      new Text('Nombre: Ensayo de algo', style: new TextStyle(fontSize: 12),),
+                      new Text('Materia: Filosofía',style: new TextStyle(fontSize: 12))
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
