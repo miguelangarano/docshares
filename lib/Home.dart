@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:random_string/random_string.dart';
 import 'Auth.dart';
 import 'dart:io';
+
+
+
 
 class Home extends StatefulWidget {
   Home({this.auth, this.onSignedOut});
@@ -19,6 +25,7 @@ class _HomeState extends State<Home> {
   int _whereiam = 0;
   bool loggedin=false;
   String _filePath;
+  final formKey=GlobalKey<FormState>();
 
   void home(){
     print('home');
@@ -54,18 +61,43 @@ class _HomeState extends State<Home> {
   void selectFile() async{
     print('select file');
     try {
-      String filePath = await FilePicker.getFilePath(type: FileType.ANY);
-
-      if (filePath == '') {
-        File file=File(filePath);
-        final StorageReference storageReference=FirebaseStorage.instance.ref().child('algo.jpg');
-        final StorageUploadTask uploadTask=storageReference.putFile(file);
-      }
-      print("File path: " + filePath);
-      setState((){this._filePath = filePath;});
+      _filePath = await FilePicker.getFilePath(type: FileType.ANY);
+      setState((){this._filePath = _filePath;});
     }catch (e) {
       print("Error while picking the file: " + e.toString());
     }
+  }
+
+  void uploadFile(){
+
+    final form = formKey.currentState;
+    if (_filePath != '' && form.validate()) {
+      File file=File(_filePath);
+      String id=updateDatabase(form);
+      print('el id: $id');
+      final StorageReference storageReference=FirebaseStorage.instance.ref().child(id);
+      final StorageUploadTask uploadTask=storageReference.putFile(file);
+      print('subido');
+    }else{
+      print('Debe especificar un archivo y llenar todos los campos');
+    }
+  }
+
+  String updateDatabase(FormState key){
+    DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
+    String id=randomAlphaNumeric(20);
+    widget.auth.currentUser().then((value){
+      var data={
+      "nombre": _nombre,
+      "materia": _materia,
+      };
+
+      print(data);
+      databaseReference.child('docs').child(value).child(id).set(data);
+    });
+
+    return id;
+
   }
 
   @override
@@ -146,9 +178,7 @@ class _HomeState extends State<Home> {
                 ),
                 new Container(
                   margin: new EdgeInsets.symmetric(vertical: 20),
-                  child: new Column(
-                    children: Principal_Inputs(),
-                  ),
+                  child: Principal_Inputs(),
                 ),
                 new Container(
                   margin: new EdgeInsets.symmetric(vertical: 10),
@@ -182,54 +212,54 @@ class _HomeState extends State<Home> {
     );
   }
 
-  List<Widget> Principal_Inputs() {
-    return [
-      new Container(
+  Widget Principal_Inputs() {
+    return new Container(
           margin: new EdgeInsets.symmetric(vertical: 20),
-          child: new TextFormField(
-            decoration: new InputDecoration(
-                focusedBorder: new OutlineInputBorder(
-                    borderSide: new BorderSide(
-                        color: new Color.fromRGBO(255, 255, 255, 60.0))),
-                hintText: 'Nombre de archivo',
-                hintStyle: new TextStyle(
-                    color: new Color.fromRGBO(255, 255, 255, 60.0)),
-                contentPadding:
-                    new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                fillColor: new Color.fromRGBO(203, 7, 7, 40.0),
-                filled: true,
-                border: new OutlineInputBorder(
-                    borderRadius: new BorderRadius.circular(50),
-                    borderSide: new BorderSide(width: 0, color: Colors.black))),
-            validator: (value) =>
-                value.isEmpty ? 'Nombre de archivo no puede estar vacio' : null,
-            onSaved: (value) => _nombre = value,
-            style: new TextStyle(color: Colors.white),
-          )),
-      new Container(
-        margin: new EdgeInsets.symmetric(vertical: 20),
-        child: new TextFormField(
-          decoration: new InputDecoration(
-              focusedBorder: new OutlineInputBorder(
-                  borderSide: new BorderSide(
-                      color: new Color.fromRGBO(255, 255, 255, 60.0))),
-              hintText: 'Materia',
-              hintStyle:
-                  new TextStyle(color: new Color.fromRGBO(255, 255, 255, 60.0)),
-              contentPadding:
-                  new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-              fillColor: new Color.fromRGBO(203, 7, 7, 40.0),
-              filled: true,
-              border: new OutlineInputBorder(
-                  borderRadius: new BorderRadius.circular(50),
-                  borderSide: new BorderSide(width: 0, color: Colors.black))),
-          validator: (value) =>
-              value.isEmpty ? 'Materia no puede estar vacio' : null,
-          onSaved: (value) => _materia = value,
-          style: new TextStyle(color: Colors.white),
-        ),
-      ),
-    ];
+          child: new Form(
+            key: formKey,
+            child: new Column(
+              children: <Widget>[
+                new TextFormField(
+                  decoration: new InputDecoration(
+                      focusedBorder: new OutlineInputBorder(
+                          borderSide: new BorderSide(
+                              color: new Color.fromRGBO(255, 255, 255, 60.0))),
+                      hintText: 'Nombre de archivo',
+                      hintStyle: new TextStyle(
+                          color: new Color.fromRGBO(255, 255, 255, 60.0)),
+                      contentPadding:
+                      new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      fillColor: new Color.fromRGBO(203, 7, 7, 40.0),
+                      filled: true,
+                      border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(50),
+                          borderSide: new BorderSide(width: 0, color: Colors.black))),
+                  onFieldSubmitted: (value) => _nombre = value,
+                  style: new TextStyle(color: Colors.white),
+                ),
+                new Padding(padding: new EdgeInsets.all(10)),
+                new TextFormField(
+                  decoration: new InputDecoration(
+                      focusedBorder: new OutlineInputBorder(
+                          borderSide: new BorderSide(
+                              color: new Color.fromRGBO(255, 255, 255, 60.0))),
+                      hintText: 'Materia',
+                      hintStyle:
+                      new TextStyle(color: new Color.fromRGBO(255, 255, 255, 60.0)),
+                      contentPadding:
+                      new EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      fillColor: new Color.fromRGBO(203, 7, 7, 40.0),
+                      filled: true,
+                      border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(50),
+                          borderSide: new BorderSide(width: 0, color: Colors.black))),
+                  onFieldSubmitted: (value) => _materia = value,
+                  style: new TextStyle(color: Colors.white),
+                )
+              ],
+            ),
+          )
+      );
   }
 
   Widget Principal_SubirButton() {
@@ -248,7 +278,7 @@ class _HomeState extends State<Home> {
 
   Widget Principal_ListoButton() {
     return new RaisedButton(
-      onPressed: () => print('Hola listo'),
+      onPressed: uploadFile,
       color: new Color.fromRGBO(143, 2, 2, 30.0),
       shape: new RoundedRectangleBorder(
           borderRadius: new BorderRadius.circular(10.0)),
