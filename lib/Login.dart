@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'Auth.dart';
 
 class Login extends StatefulWidget {
@@ -34,6 +35,14 @@ class _LoginState extends State<Login> {
   }
 
   void registrar() async {
+    Fluttertoast.showToast(
+        msg: 'Espere por favor...',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     print('registrar');
     final registerForm = registerKey.currentState;
     if(registerForm.validate() && _password==_confirmpassword){
@@ -55,16 +64,39 @@ class _LoginState extends State<Login> {
     //returnToHome();
     final loginForm = loginKey.currentState;
     if(loginForm.validate()){
+      Fluttertoast.showToast(
+          msg: 'Espere por favor...',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.white,
+          textColor: Colors.black
+      );
       try{
         String userId=await widget.auth.signInWithEmailAndPassword(_email, _password);
         //FirebaseUser user=await FirebaseAuth.instance.signInWithEmailAndPassword(email: _email, password: _password);
         print('Signed In UID: ${userId}');
         widget.onSignedIn();
       }catch(error){
-        print('Error: $error');
+        print('Error: $error');Fluttertoast.showToast(
+            msg: 'Error $error',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIos: 1,
+            backgroundColor: Colors.white,
+            textColor: Colors.black
+        );
       }
     }else{
       print('invalid');
+      Fluttertoast.showToast(
+          msg: 'Datos incompletos',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.white,
+          textColor: Colors.black
+      );
     }
   }
 
