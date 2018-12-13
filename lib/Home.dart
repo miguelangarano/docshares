@@ -23,9 +23,26 @@ class _HomeState extends State<Home> {
   int _whereiam = 0;
   bool loggedin=false;
   String _filePath;
+  bool _mustShow=false;
   List<Map<String, dynamic>> _myDocsList=new List();
   List<Map<String, dynamic>> _libraryDocsList=new List();
   final formKey=GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
+    databaseReference.child('mustshow').once().then((DataSnapshot snap){
+
+      var fileinfo=snap.value;
+
+      print(fileinfo);
+      setState(() {
+        _mustShow=fileinfo;
+      });
+    });
+  }
 
   void home(){
     print('home');
@@ -91,6 +108,9 @@ class _HomeState extends State<Home> {
       print('el id: $id');
       final StorageReference storageReference=FirebaseStorage.instance.ref().child(id);
       final StorageUploadTask uploadTask=storageReference.putFile(file);
+      uploadTask.onComplete.then((value){
+        print(value);
+      });
       print('subido');
       Fluttertoast.showToast(
           msg: 'Archivo subido con éxito',
@@ -208,27 +228,38 @@ class _HomeState extends State<Home> {
   }
 
   void openFile(String id){
-    
+
   }
 
   @override
   Widget build(BuildContext context) {
 
     // TODO: implement build
-    return new MaterialApp(
+    if(_mustShow){
+      return new MaterialApp(
+          home: new Scaffold(
+              backgroundColor: Colors.indigo[50],
+              appBar: new AppBar(
+                  backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
+                  elevation: 0,
+                  title: new Center(
+                    child: new Text('Documentos Compartidos', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  )
+              ),
+              drawer: NavigationDrawer(),
+              body: MainPanel()
+          )
+      );
+    }else{
+      return new MaterialApp(
         home: new Scaffold(
-            backgroundColor: Colors.indigo[50],
-            appBar: new AppBar(
-                backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
-                elevation: 0,
-                title: new Center(
-                  child: new Text('Documentos Compartidos', style: TextStyle(fontSize: 18, color: Colors.white)),
-                )
-            ),
-            drawer: NavigationDrawer(),
-            body: MainPanel()
+          backgroundColor: Colors.white,
+          body: new Container(
+            color: Colors.white,
+          ),
         )
-    );
+      );
+    }
   }
 
   Widget NavigationDrawer(){
