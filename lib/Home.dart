@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'Login.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'Auth.dart';
+import 'dart:io';
 
 class Home extends StatefulWidget {
+  Home({this.auth, this.onSignedOut});
+  final BaseAuth auth;
+  final VoidCallback onSignedOut;
+
   @override
   State<StatefulWidget> createState() => new _HomeState();
 }
@@ -11,6 +18,7 @@ class _HomeState extends State<Home> {
   String _materia;
   int _whereiam = 0;
   bool loggedin=false;
+  String _filePath;
 
   void home(){
     print('home');
@@ -33,16 +41,31 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void logOut(){
+  void logOut() async{
     print('Log Out');
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => new Login()),
-    );
+    try{
+      await widget.auth.signOut();
+      widget.onSignedOut();
+    }catch(error){
+      print(error);
+    }
   }
 
-  void selectFile(){
+  void selectFile() async{
     print('select file');
+    try {
+      String filePath = await FilePicker.getFilePath(type: FileType.ANY);
+
+      if (filePath == '') {
+        File file=File(filePath);
+        final StorageReference storageReference=FirebaseStorage.instance.ref().child('algo.jpg');
+        final StorageUploadTask uploadTask=storageReference.putFile(file);
+      }
+      print("File path: " + filePath);
+      setState((){this._filePath = filePath;});
+    }catch (e) {
+      print("Error while picking the file: " + e.toString());
+    }
   }
 
   @override

@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:310151989993:android:484a7f231216c99f",
+        "mobilesdk_app_id": "1:310151989993:android:eaa5faf51f8489e9",
         "android_client_info": {
-          "package_name": "com.dochshares.docshares"
+          "package_name": "com.docshares.docshares"
         }
       },
       "oauth_client": [
