@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:random_string/random_string.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'Auth.dart';
 import 'dart:io';
 
@@ -18,8 +19,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String _nombre='default';
-  String _materia='default';
+  String _nombre;
+  String _materia;
   int _whereiam = 0;
   bool loggedin=false;
   String _filePath;
@@ -104,11 +105,17 @@ class _HomeState extends State<Home> {
     if (_filePath != '' && _filePath!=null && form.validate()) {
       form.save();
       File file=File(_filePath);
-      String id=updateDatabase(form);
-      print('el id: $id');
+
+      String id=randomAlphaNumeric(20);
       final StorageReference storageReference=FirebaseStorage.instance.ref().child(id);
+
       final StorageUploadTask uploadTask=storageReference.putFile(file);
       uploadTask.onComplete.then((value){
+        storageReference.getDownloadURL().then((value1){
+          print('de leeeeey');
+          print('$value1 y el $id');
+          updateDatabase(form, id, value1);
+        });
         print(value);
       });
       print('subido');
@@ -133,19 +140,20 @@ class _HomeState extends State<Home> {
     }
   }
 
-  String updateDatabase(FormState key){
+  String updateDatabase(FormState key, String id, String url){
     DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
-    String id=randomAlphaNumeric(20);
     widget.auth.currentUser().then((value){
       var data={
-      "nombre": _nombre,
-      "materia": _materia,
+      "nombre": _nombre.trim(),
+      "materia": _materia.trim(),
+        "url": url.trim()
       };
 
       var dataUno={
-        "nombre": _nombre,
-        "materia": _materia,
-        "uid": value
+        "nombre": _nombre.trim(),
+        "materia": _materia.trim(),
+        "uid": value,
+        "url": url.trim()
       };
 
       print(data);
@@ -170,7 +178,8 @@ class _HomeState extends State<Home> {
             "id": fileid,
             "nombre": fileinfo[fileid]['nombre'],
             "materia": fileinfo[fileid]['materia'],
-            "autor": value
+            "autor": value,
+            "url": fileinfo[fileid]['url']
           };
           _myDocsList.insert(i, data);
           i++;
@@ -194,6 +203,7 @@ class _HomeState extends State<Home> {
           "id": fileid,
           "nombre": fileinfo[fileid]['nombre'],
           "materia": fileinfo[fileid]['materia'],
+          "url": fileinfo[fileid]['url']
         };
         _libraryDocsList.insert(i, data);
         i++;
@@ -205,17 +215,18 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void addToMyDocs(String id){
-    print('added $id');
+  void addToMyDocs(var obj){
+    //print('added $id["id"]');
     DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
     widget.auth.currentUser().then((value){
       var data={
-        "nombre": _nombre,
-        "materia": _materia,
+        "nombre": obj['nombre'],
+        "materia": obj['materia'],
+        "url": obj['url']
       };
 
       print(data);
-      databaseReference.child('users').child(value).child(id).set(data);
+      databaseReference.child('users').child(value).child(obj['id']).set(data);
       Fluttertoast.showToast(
           msg: 'Libro añadido con éxito',
           toastLength: Toast.LENGTH_SHORT,
@@ -227,8 +238,12 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void openFile(String id){
-
+  void openFile(String url) async{
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -239,13 +254,7 @@ class _HomeState extends State<Home> {
       return new MaterialApp(
           home: new Scaffold(
               backgroundColor: Colors.indigo[50],
-              appBar: new AppBar(
-                  backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
-                  elevation: 0,
-                  title: new Center(
-                    child: new Text('Documentos Compartidos', style: TextStyle(fontSize: 18, color: Colors.white)),
-                  )
-              ),
+              appBar: MainAppBar(),
               drawer: NavigationDrawer(),
               body: MainPanel()
           )
@@ -258,6 +267,28 @@ class _HomeState extends State<Home> {
             color: Colors.white,
           ),
         )
+      );
+    }
+  }
+
+  Widget MainAppBar(){
+    if(_whereiam==0){
+      return new AppBar(
+          backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
+          elevation: 0,
+          title: new Text('Página Principal', style: TextStyle(fontSize: 18, color: Colors.white)),
+      );
+    }else if(_whereiam==1){
+      return new AppBar(
+          backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
+          elevation: 0,
+          title: new Text('Mis Documentos', style: TextStyle(fontSize: 18, color: Colors.white)),
+      );
+    }else if(_whereiam==2){
+      return new AppBar(
+          backgroundColor: new Color.fromRGBO(222, 39, 39, 1.0),
+          elevation: 0,
+          title: new Text('Biblioteca', style: TextStyle(fontSize: 18, color: Colors.white)),
       );
     }
   }
@@ -351,7 +382,8 @@ class _HomeState extends State<Home> {
             var obj={
               "nombre": _libraryDocsList[index]['nombre'],
               "materia": _libraryDocsList[index]['materia'],
-              "id": _libraryDocsList[index]['id']
+              "id": _libraryDocsList[index]['id'],
+              "url": _libraryDocsList[index]['url']
             };
 
             return Biblioteca_Card(index, obj);
@@ -382,6 +414,11 @@ class _HomeState extends State<Home> {
                       border: new OutlineInputBorder(
                           borderRadius: new BorderRadius.circular(50),
                           borderSide: new BorderSide(width: 0, color: Colors.black))),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return null;
+                    }
+                  },
                   onSaved: (value) => _nombre = value,
                   style: new TextStyle(color: Colors.white),
                 ),
@@ -401,6 +438,11 @@ class _HomeState extends State<Home> {
                       border: new OutlineInputBorder(
                           borderRadius: new BorderRadius.circular(50),
                           borderSide: new BorderSide(width: 0, color: Colors.black))),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return null;
+                    }
+                  },
                   onSaved: (value) => _materia = value,
                   style: new TextStyle(color: Colors.white),
                 )
@@ -448,7 +490,8 @@ class _HomeState extends State<Home> {
         var obj={
           "nombre": _myDocsList[index]['nombre'],
           "materia": _myDocsList[index]['materia'],
-          "autor": _myDocsList[index]['autor']
+          "autor": _myDocsList[index]['autor'],
+          "url": _myDocsList[index]['url']
         };
 
         if(index%2==0){
@@ -465,25 +508,32 @@ class _HomeState extends State<Home> {
       child: new Row(
         //crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          new Container(
-              padding: new EdgeInsets.symmetric(vertical: 10),
-              width: 235,
-              height: 70,
-              color: new Color.fromRGBO(222, 39, 39, 30.0),
-              child: new Column(
-                children: <Widget>[
-                  new Text('Nombre: '+obj['nombre'], style: new TextStyle(color: Colors.white),),
-                  new Text('Materia: '+obj['materia'], style: new TextStyle(color: Colors.white),),
-                  new Padding(padding: new EdgeInsets.all(3)),
-                  new Text('Subido por: '+obj['autor'], style: new TextStyle(color: Colors.white, fontSize: 8),)
-                ],
-              )),
+          new GestureDetector(
+            onTap: ()=>openFile(obj['url']),
+            child: new Container(
+                padding: new EdgeInsets.symmetric(vertical: 10),
+                width: 235,
+                height: 70,
+                color: new Color.fromRGBO(222, 39, 39, 30.0),
+                child: new Column(
+                  children: <Widget>[
+                    new Text('Nombre: '+obj['nombre'], style: new TextStyle(color: Colors.white),),
+                    new Text('Materia: '+obj['materia'], style: new TextStyle(color: Colors.white),),
+                    new Padding(padding: new EdgeInsets.all(3)),
+                    new Text('Subido por: '+obj['autor'], style: new TextStyle(color: Colors.white, fontSize: 8),)
+                  ],
+                )
+            ),
+          ),
           new Container(
             width: 104,
             height: 70,
             color: new Color.fromRGBO(222, 39, 39, 30.0),
             child: new Center(
-              child: new Image.asset('assets/doc.png', fit: BoxFit.cover),
+              child: new GestureDetector(
+                onTap: ()=>openFile(obj['url']),
+                child: new Image.asset('assets/doc.png', fit: BoxFit.cover),
+              )
             ),
           )
         ],
@@ -495,25 +545,32 @@ class _HomeState extends State<Home> {
     return new Container(
       child: new Row(
         children: <Widget>[
-          new Container(
-              padding: new EdgeInsets.symmetric(vertical: 10),
-              width: 235,
-              height: 70,
-              color: new Color.fromRGBO(143, 2, 2, 30.0),
-              child: new Column(
-                children: <Widget>[
-                  new Text('Nombre: '+obj['nombre'], style: new TextStyle(color: Colors.white),),
-                  new Text('Materia: '+obj['materia'], style: new TextStyle(color: Colors.white),),
-                  new Padding(padding: new EdgeInsets.all(3)),
-                  new Text('Subido por: '+obj['autor'], style: new TextStyle(color: Colors.white, fontSize: 8),)
-                ],
-              )),
+          new GestureDetector(
+              onTap: ()=>openFile(obj['url']),
+              child: new Container(
+                  padding: new EdgeInsets.symmetric(vertical: 10),
+                  width: 235,
+                  height: 70,
+                  color: new Color.fromRGBO(143, 2, 2, 30.0),
+                  child: new Column(
+                    children: <Widget>[
+                      new Text('Nombre: '+obj['nombre'], style: new TextStyle(color: Colors.white),),
+                      new Text('Materia: '+obj['materia'], style: new TextStyle(color: Colors.white),),
+                      new Padding(padding: new EdgeInsets.all(3)),
+                      new Text('Subido por: '+obj['autor'], style: new TextStyle(color: Colors.white, fontSize: 8),)
+                    ],
+                  )
+              )
+          ),
           new Container(
             width: 104,
             height: 70,
             color: new Color.fromRGBO(143, 2, 2, 30.0),
             child: new Center(
-              child: new Image.asset('assets/doc.png', fit: BoxFit.cover),
+              child: new GestureDetector(
+                onTap: ()=>openFile(obj['url']),
+                child: new Image.asset('assets/doc.png', fit: BoxFit.cover),
+              )
             ),
           )
         ],
@@ -530,11 +587,11 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new GestureDetector(
-              onTap: ()=>addToMyDocs(obj['id']),
+              onTap: ()=>addToMyDocs(obj),
               child: new Icon(Icons.share, size: 50),
             ),
             new GestureDetector(
-              onTap: ()=>openFile(obj['id']),
+              onTap: ()=>openFile(obj['url']),
               child: new Container(
                 margin: new EdgeInsets.only(left: 0, top: 10, right: 0, bottom: 0),
                 child: new Card(

@@ -46,8 +46,11 @@ class _LoginState extends State<Login> {
     print('registrar');
     final registerForm = registerKey.currentState;
     if(registerForm.validate() && _password==_confirmpassword){
+      _email="";
+      _password="";
+      registerForm.save();
       try{
-        String userId=await widget.auth.createUserWithEmailAndPassword(_email, _password);
+        String userId=await widget.auth.createUserWithEmailAndPassword(_email.trim(), _password.trim());
         //FirebaseUser user=await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
         print('Signed In UID: ${userId}');
         widget.onSignedIn();
@@ -64,6 +67,9 @@ class _LoginState extends State<Login> {
     //returnToHome();
     final loginForm = loginKey.currentState;
     if(loginForm.validate()){
+      _email="";
+      _password="";
+      loginForm.save();
       Fluttertoast.showToast(
           msg: 'Espere por favor...',
           toastLength: Toast.LENGTH_SHORT,
@@ -73,7 +79,7 @@ class _LoginState extends State<Login> {
           textColor: Colors.black
       );
       try{
-        String userId=await widget.auth.signInWithEmailAndPassword(_email, _password);
+        String userId=await widget.auth.signInWithEmailAndPassword(_email.trim(), _password.trim());
         //FirebaseUser user=await FirebaseAuth.instance.signInWithEmailAndPassword(email: _email, password: _password);
         print('Signed In UID: ${userId}');
         widget.onSignedIn();
@@ -136,8 +142,12 @@ class _LoginState extends State<Login> {
                             borderRadius: new BorderRadius.circular(50),
                             borderSide:
                             new BorderSide(width: 0, color: Colors.black))),
-                    //onSaved: (value) => _email = value,
-                    onFieldSubmitted: (value) => _email = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _email = value,
                     style: new TextStyle(color: Colors.grey),
                   ),
 
@@ -161,7 +171,12 @@ class _LoginState extends State<Login> {
                             borderSide: new BorderSide(width: 0, color: Colors.black)
                         )
                     ),
-                    onFieldSubmitted: (value) => _password = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _password = value,
                     style: new TextStyle(color: Colors.grey),
                     obscureText: true,
                   ),
@@ -222,7 +237,12 @@ class _LoginState extends State<Login> {
                         border: new OutlineInputBorder(
                             borderRadius: new BorderRadius.circular(50),
                             borderSide: new BorderSide(width: 0, color: Colors.black))),
-                    onFieldSubmitted: (value) => _nombre = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _nombre = value,
                     style: new TextStyle(color: Colors.grey),
                   ),
                   new Padding(padding: new EdgeInsets.all(12.5),),
@@ -242,7 +262,12 @@ class _LoginState extends State<Login> {
                             borderSide: new BorderSide(width: 0, color: Colors.black)
                         )
                     ),
-                    onFieldSubmitted: (value) => _matricula = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _matricula = value,
                     style: new TextStyle(color: Colors.grey),
                   ),
                   new Padding(padding: new EdgeInsets.all(12.5),),
@@ -260,7 +285,12 @@ class _LoginState extends State<Login> {
                         border: new OutlineInputBorder(
                             borderRadius: new BorderRadius.circular(50),
                             borderSide: new BorderSide(width: 0, color: Colors.black))),
-                    onFieldSubmitted: (value) => _email = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _email = value,
                     style: new TextStyle(color: Colors.grey),
                   ),
                   new Padding(padding: new EdgeInsets.all(12.5),),
@@ -278,7 +308,12 @@ class _LoginState extends State<Login> {
                         border: new OutlineInputBorder(
                             borderRadius: new BorderRadius.circular(50),
                             borderSide: new BorderSide(width: 0, color: Colors.black))),
-                    onFieldSubmitted: (value) => _password = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _password = value,
                     style: new TextStyle(color: Colors.grey),
                   ),
                   new Padding(padding: new EdgeInsets.all(12.5),),
@@ -296,7 +331,12 @@ class _LoginState extends State<Login> {
                         border: new OutlineInputBorder(
                             borderRadius: new BorderRadius.circular(50),
                             borderSide: new BorderSide(width: 0, color: Colors.black))),
-                    onFieldSubmitted: (value) => _confirmpassword = value,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return null;
+                      }
+                    },
+                    onSaved: (value) => _confirmpassword = value,
                     style: new TextStyle(color: Colors.grey),
                   )
                 ],

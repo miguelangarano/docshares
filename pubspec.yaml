@@ -21,6 +21,8 @@ dependencies:
   firebase_core: 0.2.5+1
   random_string: 0.0.2
   fluttertoast: ^2.1.5
+  url_launcher: 3.0.3
+  flutter_webview_plugin: 0.3.0+2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
