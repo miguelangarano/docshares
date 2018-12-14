@@ -72,6 +72,14 @@ class _HomeState extends State<Home> {
 
   void logOut() async{
     print('Log Out');
+    Fluttertoast.showToast(
+        msg: 'Espere...',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     try{
       await widget.auth.signOut();
       widget.onSignedOut();
@@ -100,6 +108,14 @@ class _HomeState extends State<Home> {
 
   void uploadFile(){
 
+    Fluttertoast.showToast(
+        msg: 'Espere...',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     final form = formKey.currentState;
     print(form.validate());
     if (_filePath != '' && _filePath!=null && form.validate()) {
@@ -119,14 +135,6 @@ class _HomeState extends State<Home> {
         print(value);
       });
       print('subido');
-      Fluttertoast.showToast(
-          msg: 'Archivo subido con éxito',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIos: 1,
-          backgroundColor: Colors.white,
-          textColor: Colors.black
-      );
     }else{
       print('Debe especificar un archivo y llenar todos los campos');
       Fluttertoast.showToast(
@@ -160,6 +168,14 @@ class _HomeState extends State<Home> {
       print(dataUno);
       databaseReference.child('users').child(value).child(id).set(data);
       databaseReference.child('docs').child(id).set(dataUno);
+      Fluttertoast.showToast(
+          msg: 'Archivo subido con éxito',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.white,
+          textColor: Colors.black
+      );
     });
 
     return id;
@@ -167,6 +183,14 @@ class _HomeState extends State<Home> {
   }
 
   void getMyDocs(){
+    Fluttertoast.showToast(
+        msg: 'Espere...',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     widget.auth.currentUser().then((value){
       DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
       databaseReference.child('users').child(value).once().then((DataSnapshot snap){
@@ -193,6 +217,14 @@ class _HomeState extends State<Home> {
   }
 
   void getLibraryDocs(){
+    Fluttertoast.showToast(
+        msg: 'Espere...',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
     databaseReference.child('docs').once().then((DataSnapshot snap){
       var fileids=snap.value.keys;
@@ -217,6 +249,14 @@ class _HomeState extends State<Home> {
 
   void addToMyDocs(var obj){
     //print('added $id["id"]');
+    Fluttertoast.showToast(
+        msg: 'Espere...',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     DatabaseReference databaseReference=FirebaseDatabase.instance.reference();
     widget.auth.currentUser().then((value){
       var data={
@@ -239,6 +279,14 @@ class _HomeState extends State<Home> {
   }
 
   void openFile(String url) async{
+    Fluttertoast.showToast(
+        msg: 'Espere...',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.white,
+        textColor: Colors.black
+    );
     if (await canLaunch(url)) {
       await launch(url);
     } else {
