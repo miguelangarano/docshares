@@ -228,7 +228,7 @@ class _HomeState extends State<Home> {
       print(data);
       databaseReference.child('users').child(value).child(obj['id']).set(data);
       Fluttertoast.showToast(
-          msg: 'Libro añadido con éxito',
+          msg: 'Documento añadido con éxito',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
           timeInSecForIos: 1,
